@@ -5,10 +5,17 @@ from app.core.config import settings
 DATABASE_URL = (
     f"mysql+pymysql://{settings.DB_USER}:{settings.DB_PASSWORD}"
     f"@{settings.DB_HOST}:{settings.DB_PORT}/{settings.DB_NAME}"
-    f"?ssl_ca={settings.DB_SSL_CA}"
 )
 
-engine = create_engine(DATABASE_URL, pool_pre_ping=True)
+# Option B — no SSL verification (no ca.pem needed)
+connect_args = {
+    "ssl": {
+        "verify_cert": False,
+        "verify_identity": False
+    }
+}
+
+engine = create_engine(DATABASE_URL, connect_args=connect_args, pool_pre_ping=True)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 class Base(DeclarativeBase):
